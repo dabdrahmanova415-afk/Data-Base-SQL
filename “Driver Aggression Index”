@@ -1,0 +1,16 @@
+SELECT
+    driver_name,
+
+    AVG(brake_percent * 0.4 +
+        throttle_percent * 0.3 +
+        (
+            tire_temp_front_left +
+            tire_temp_front_right +
+            tire_temp_rear_left +
+            tire_temp_rear_right
+        ) / 4 * 0.3
+    ) AS aggression_index
+
+FROM f1_telemetry
+GROUP BY driver_name
+ORDER BY aggression_index DESC;
