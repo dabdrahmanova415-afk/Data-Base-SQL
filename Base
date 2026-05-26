@@ -1,0 +1,101 @@
+CREATE TABLE f1_telemetry (
+    telemetry_id INT PRIMARY KEY AUTO_INCREMENT,
+    
+    driver_name VARCHAR(50),
+    team_name VARCHAR(50),
+    
+    lap_number INT,
+    sector INT,
+    
+    speed_kmh FLOAT,
+    engine_rpm INT,
+    throttle_percent FLOAT,
+    brake_percent FLOAT,
+    
+    tire_temp_front_left FLOAT,
+    tire_temp_front_right FLOAT,
+    tire_temp_rear_left FLOAT,
+    tire_temp_rear_right FLOAT,
+    
+    fuel_level FLOAT,
+    drs_enabled BOOLEAN,
+    
+    gps_x FLOAT,
+    gps_y FLOAT,
+    
+    timestamp_ms BIGINT
+);
+
+
+INSERT INTO f1_telemetry (
+    driver_name,
+    team_name,
+    lap_number,
+    sector,
+    speed_kmh,
+    engine_rpm,
+    throttle_percent,
+    brake_percent,
+    tire_temp_front_left,
+    tire_temp_front_right,
+    tire_temp_rear_left,
+    tire_temp_rear_right,
+    fuel_level,
+    drs_enabled,
+    gps_x,
+    gps_y,
+    timestamp_ms
+)
+VALUES
+('Leclerc', 'Ferrari', 12, 1, 312, 11800, 100, 0,
+ 96, 97, 101, 100,
+ 42.5, TRUE,
+ 125.3, 88.1,
+ 1716412000),
+
+('Leclerc', 'Ferrari', 12, 2, 128, 7600, 12, 85,
+ 103, 104, 108, 109,
+ 42.1, FALSE,
+ 130.8, 90.5,
+ 1716412400);
+
+3. Анализ максимальной скорости
+SELECT 
+    driver_name,
+    MAX(speed_kmh) AS max_speed
+FROM f1_telemetry
+GROUP BY driver_name
+ORDER BY max_speed DESC;
+
+4. Анализ перегрева шин
+SELECT
+    lap_number,
+    
+    AVG(
+        (
+            tire_temp_front_left +
+            tire_temp_front_right +
+            tire_temp_rear_left +
+            tire_temp_rear_right
+        ) / 4
+    ) AS avg_tire_temp
+
+FROM f1_telemetry
+GROUP BY lap_number
+ORDER BY avg_tire_temp DESC;
+
+5. Где пилот тормозит сильнее всего
+SELECT
+    sector,
+    AVG(brake_percent) AS avg_braking
+FROM f1_telemetry
+GROUP BY sector
+ORDER BY avg_braking DESC;
+
+6. Поиск эффективности DRS
+SELECT
+    drs_enabled,
+    AVG(speed_kmh) AS avg_speed
+FROM f1_telemetry
+GROUP BY drs_enabled;
+
